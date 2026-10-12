@@ -1,4 +1,4 @@
-const VERSION = "chatly-v1";
+const VERSION = "chatly-v2";
 const SHELL = ["./", "./index.html", "./style.css", "./script.js", "./manifest.json"];
 
 self.addEventListener("install", e => {

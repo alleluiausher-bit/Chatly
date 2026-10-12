@@ -62,9 +62,23 @@
 
                 <p class="auth-slogan">Chat differently.</p>
 
+                <!-- ÉCRAN D'ACCUEIL -->
+
+                <div id="welcome-form">
+
+                    <p class="welcome-tagline">Une meilleure façon de rester connecté.</p>
+
+                    <button id="welcome-login-button" class="primary-button">Se connecter</button>
+
+                    <button id="welcome-register-button" class="secondary-button">Créer un compte</button>
+
+                </div>
+
                 <!-- CONNEXION -->
 
-                <div id="login-form">
+                <div id="login-form" class="hidden">
+
+                    <button class="auth-back-button" data-back aria-label="Retour">←</button>
 
                     <h1>Content de te revoir</h1>
 
@@ -84,6 +98,8 @@
                 <!-- INSCRIPTION -->
 
                 <div id="register-form" class="hidden">
+
+                    <button class="auth-back-button" data-back aria-label="Retour">←</button>
 
                     <h1>Crée ton compte</h1>
 
@@ -178,6 +194,9 @@
             <section class="welcome">
                 <h1 id="welcome-title">Salut</h1>
             </section>
+<!-- STORIES -->
+
+<section id="stories-row" class="stories-row" aria-label="Stories"></section>
 
             <!-- RACCOURCIS -->
 
@@ -271,7 +290,7 @@
 
             <div class="page-header">
                 <button id="close-search-page" class="back-button" aria-label="Retour">←</button>
-                <h2>Recherche</h2>
+                <h2>Découvrir</h2>
             </div>
 
             <div class="search-box">
@@ -279,11 +298,37 @@
                     <circle cx="11" cy="11" r="6.5"></circle>
                     <path d="M16 16L21 21"></path>
                 </svg>
-                <input type="text" id="user-search-input" placeholder="Nom, @username ou ID" autocomplete="off">
+                <input type="text" id="user-search-input" placeholder="Rechercher sur CHATLY..." autocomplete="off">
             </div>
 
-            <div id="search-results" class="search-results users-container">
-                <div class="search-empty">Recherche des utilisateurs CHATLY.</div>
+            <div class="discover-tabs">
+                <button id="discover-tab-people" class="discover-tab active" data-tab="people">Personnes</button>
+                <button id="discover-tab-posts" class="discover-tab" data-tab="posts">Publications</button>
+                <button id="discover-tab-groups" class="discover-tab" data-tab="groups">Groupes</button>
+            </div>
+
+            <div id="discover-people" class="discover-panel">
+
+                <div id="search-results" class="search-results users-container">
+                    <div class="search-empty">Recherche des utilisateurs CHATLY.</div>
+                </div>
+
+                <h3 id="suggestions-title" class="discover-section-title hidden">Suggestions</h3>
+
+                <div id="suggestions-results" class="users-container"></div>
+
+            </div>
+
+            <div id="discover-posts" class="discover-panel hidden">
+                <div id="discover-posts-results" class="posts-container">
+                    <div class="search-empty">Cherche un mot pour trouver des publications.</div>
+                </div>
+            </div>
+
+            <div id="discover-groups" class="discover-panel hidden">
+                <div id="discover-groups-results" class="users-container">
+                    <div class="search-empty">Chargement des salles...</div>
+                </div>
             </div>
 
         </main>
@@ -298,27 +343,24 @@
             <div class="page-header">
                 <button id="close-profile-page" class="back-button" aria-label="Retour">←</button>
                 <h2>Profil</h2>
+                <button id="profile-settings-button" class="back-button settings-gear hidden" aria-label="Réglages">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 0 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.96Z"></path>
+                    </svg>
+                </button>
             </div>
 
             <section id="profile-card" class="profile-card">
 
-                <div class="profile-top">
+    <div id="profile-cover" class="profile-cover" role="button" tabindex="0"></div>
 
-                    <div id="profile-avatar" class="profile-avatar">U</div>
-
-                    <div class="profile-stats">
-                        <div>
-                            <strong id="profile-post-count">0</strong>
-                            <span>publications</span>
-                        </div>
-                        <div>
-                            <strong id="profile-friend-count">0</strong>
-                            <span>amis</span>
-                        </div>
-                    </div>
-
-                </div>
-
+    <div
+        id="profile-avatar"
+        class="profile-avatar"
+        role="button"
+        tabindex="0"
+    >U</div>
                 <h1 id="profile-name">Utilisateur</h1>
 
                 <p id="profile-username" class="profile-username">@username</p>
@@ -329,6 +371,18 @@
 
                 <p id="profile-bio" class="profile-bio">Bienvenue sur mon profil CHATLY.</p>
 
+                <div class="profile-stats">
+                    <div>
+                        <strong id="profile-post-count">0</strong>
+                        <span>publications</span>
+                    </div>
+                    <div class="profile-stats-sep"></div>
+                    <div>
+                        <strong id="profile-friend-count">0</strong>
+                        <span>amis</span>
+                    </div>
+                </div>
+
                 <p class="profile-id">
                     <span>ID</span>
                     <strong id="profile-id-value">CLY-000000</strong>
@@ -336,19 +390,11 @@
 
                 <div class="profile-actions">
 
-                    <button id="edit-profile-button" class="primary-button">Modifier mon profil</button>
-
-                    <button id="friend-toggle-button" class="primary-button hidden">💜 TWIST WITH</button>
+                    <button id="friend-toggle-button" class="primary-button hidden">Ajouter en ami</button>
 
                     <button id="message-button" class="secondary-button hidden">Envoyer un message</button>
 
                     <button id="notebook-button" class="secondary-button hidden">Ouvrir le carnet à deux</button>
-
-                    <button id="quiet-button" class="secondary-button">🤫 Activer le silence</button>
-
-                    <button id="logout-button" class="secondary-button">Se déconnecter</button>
-
-                    <button id="customize-button" class="secondary-button">🎨 Personnaliser l'apparence</button>
 
                 </div>
 
@@ -356,9 +402,11 @@
 
             <section class="profile-posts">
 
-                <h2 id="profile-posts-title">Mes publications</h2>
+                <div class="timeline-filters">
+                    <button id="timeline-chip" class="timeline-chip active" type="button">Tout</button>
+                </div>
 
-                <div id="profile-posts-container" class="posts-container"></div>
+                <div id="profile-posts-container" class="posts-container timeline"></div>
 
             </section>
 
@@ -376,19 +424,9 @@
                 <h2>Amis</h2>
             </div>
 
-            <section class="twist-requests-section">
-                <h3>💜 Demandes TWIST WITH</h3>
-                <div id="twist-requests-container" class="users-container">
-                    <div class="search-empty">Aucune demande pour le moment.</div>
-                </div>
-            </section>
-
-            <section>
-                <h3>🤝 Mes amis</h3>
-                <div id="friends-container" class="users-container">
-                    <div class="search-empty">Aucun ami pour le moment.</div>
-                </div>
-            </section>
+            <div id="friends-container" class="users-container">
+                <div class="search-empty">Aucun ami pour le moment.</div>
+            </div>
 
         </main>
 
@@ -575,15 +613,9 @@
                 <h2>Stories</h2>
             </div>
 
-            <div class="coming-soon">
-                <svg class="coming-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="8"></circle>
-                    <path d="M12 8v4l3 2"></path>
-                </svg>
-                <h2>Bientôt disponible</h2>
-                <p>Les stories, des publications qui disparaissent après 24 h, arrivent dans une prochaine version.</p>
-            </div>
-
+<div id="stories-grid" class="stories-grid">
+    <div class="search-empty">Chargement des stories...</div>
+</div>
         </main>
 
 
@@ -604,14 +636,14 @@
                 <span class="nav-label">Accueil</span>
             </button>
 
-            <button id="nav-search" aria-label="Recherche">
+            <button id="nav-search" aria-label="Découvrir">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <circle cx="11" cy="11" r="6.5"></circle>
                         <path d="M16 16L21 21"></path>
                     </svg>
                 </span>
-                <span class="nav-label">Recherche</span>
+                <span class="nav-label">Découvrir</span>
             </button>
 
             <button id="nav-create-post" class="nav-create" aria-label="Publier">
@@ -652,27 +684,69 @@
 
     <div id="post-modal" class="modal hidden">
 
-        <div class="modal-card">
+    <div class="modal-card">
 
-            <div class="modal-header">
-                <h2>Nouvelle publication</h2>
-                <button id="close-post-modal" class="close-button" aria-label="Fermer">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M6 6l12 12"></path>
-                        <path d="M18 6 6 18"></path>
-                    </svg>
-                </button>
-            </div>
+        <div class="modal-header">
+            <h2>Nouvelle publication</h2>
+            <button id="close-post-modal" class="close-button" aria-label="Fermer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 6l12 12"></path>
+                    <path d="M18 6 6 18"></path>
+                </svg>
+            </button>
+        </div>
 
-            <textarea id="post-text" placeholder="À quoi penses-tu ?" maxlength="1000"></textarea>
+        <textarea id="post-text" placeholder="À quoi penses-tu ?" maxlength="1000"></textarea>
 
-            <div class="post-counter"><span id="post-counter">0</span> / 1000</div>
+        <div class="post-counter"><span id="post-counter">0</span> / 1000</div>
 
-            <button id="publish-button" class="primary-button">Publier</button>
+        <!-- Aperçu de l'image -->
+        <div id="post-image-preview" class="media-preview hidden"></div>
+
+        <!-- Chip lieu (branché à l'étape 3) -->
+        <div id="post-location-chip" class="location-chip hidden"></div>
+
+        <!-- Barre d'actions rapides -->
+        <div class="compose-bar">
+
+            <input
+                type="file"
+                id="post-image-input"
+                accept="image/*"
+                capture="environment"
+                hidden
+            >
+
+            <button type="button" class="compose-chip" id="post-image-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <path d="m21 15-5-5L5 21"></path>
+                </svg>
+                Photo
+            </button>
+
+            <button type="button" class="compose-chip" id="post-location-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Lieu
+            </button>
 
         </div>
 
+        <button id="publish-button" class="primary-button">Publier</button>
+<button
+    id="publish-story-button"
+    class="secondary-button"
+    style="margin-top: 10px;"
+>
+    Publier en story (24 h)
+</button>
     </div>
+
+</div>
 
 
     <!-- =========================
@@ -825,10 +899,91 @@
     </div>
 
 
+    <!-- =========================
+         MODAL RÉGLAGES
+    ========================== -->
+
+    <div id="settings-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Réglages</h2>
+                <button id="close-settings" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="settings-list">
+
+                <button id="edit-profile-button" class="settings-row">
+                    <span class="settings-row-icon">✏️</span>
+                    <span class="settings-row-label">Modifier mon profil</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+
+                <button id="customize-button" class="settings-row">
+                    <span class="settings-row-icon">🎨</span>
+                    <span class="settings-row-label">Personnaliser l'apparence</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+
+                <button id="quiet-button" class="settings-row">
+                    <span class="settings-row-icon">🤫</span>
+                    <span class="settings-row-label">Activer le silence</span>
+                    <span class="settings-row-arrow">›</span>
+                </button>
+
+                <button id="logout-button" class="settings-row settings-row-danger">
+                    <span class="settings-row-icon">🚪</span>
+                    <span class="settings-row-label">Se déconnecter</span>
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <!-- MESSAGE TEMPORAIRE -->
 
     <div id="toast" class="toast hidden" role="status"></div>
+<!-- =========================
+     VISIONNEUSE DE STORY
+========================== -->
 
+<div id="story-viewer" class="story-viewer hidden">
+
+    <div class="story-progress">
+        <div class="story-progress-bar" id="story-progress-bar"></div>
+    </div>
+
+    <header class="story-viewer-header">
+
+        <div class="story-viewer-author">
+            <div id="story-viewer-avatar" class="story-viewer-avatar"></div>
+            <div>
+                <strong id="story-viewer-name"></strong>
+                <span id="story-viewer-time"></span>
+            </div>
+        </div>
+
+        <button id="story-viewer-close" class="story-viewer-close" aria-label="Fermer">×</button>
+
+    </header>
+
+    <div class="story-viewer-media" id="story-viewer-media"></div>
+
+    <div class="story-viewer-text" id="story-viewer-text"></div>
+
+    <button class="story-nav story-nav-prev" id="story-prev" aria-label="Précédent">‹</button>
+    <button class="story-nav story-nav-next" id="story-next" aria-label="Suivant">›</button>
+
+</div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
     <script>

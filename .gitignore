@@ -8,3 +8,6 @@ android/
 *.before-twist-requests
 *.before-twist-send
 .DS_Store
+*.old
+*.no-pwa
+*.gitversion
