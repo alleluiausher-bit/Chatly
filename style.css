@@ -1,0 +1,1693 @@
+/* =====================================================
+   chatly : identité visuelle
+   -----------------------------------------------------
+   Idée : tout est une bulle de conversation.
+   Chaque personne a sa couleur (avatar, publications,
+   profil). L'interface reste neutre, avec un seul bleu
+   indigo pour les actions.
+===================================================== */
+
+:root {
+
+    /* Couleurs de l'interface */
+    --canvas: #F3F4F8;
+    --surface: #FFFFFF;
+    --ink: #171526;
+    --muted: #6B6A7E;
+    --line: #E4E5EE;
+    --brand: #5B45FF;
+    --brand-ink: #FFFFFF;
+    --brand-soft: color-mix(in srgb, var(--brand) 12%, var(--surface));
+    --danger: #E5384F;
+    --shadow: 0 1px 2px rgba(23, 21, 38, 0.06), 0 12px 28px -16px rgba(23, 21, 38, 0.28);
+
+    /* Couleur d'une personne (remplacée par script.js) */
+    --c: var(--brand);
+    --c-ink: #FFFFFF;
+
+    /* Typographie */
+    --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+    --canvas: #0E0D16;
+    --surface: #1A1926;
+    --ink: #F2F1FA;
+    --muted: #9C9AB2;
+    --line: #2C2B3D;
+    --brand: #7A68FF;
+    --brand-ink: #FFFFFF;
+    --danger: #FF6B7F;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.7);
+
+    color-scheme: dark;
+}
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-padding-top: 72px;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+button {
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+input,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+svg {
+    flex-shrink: 0;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.hidden {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--brand) 55%, transparent);
+    outline-offset: 2px;
+}
+
+/* Icônes : trait fin, sans remplissage */
+
+.top-actions svg,
+.quick-actions svg,
+.search-box svg,
+.close-button svg,
+.chat-send svg,
+.nav-icon svg,
+.nav-create svg,
+.post-actions svg,
+.empty-icon,
+.coming-icon {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =====================================================
+   AVATARS : la couleur de la personne
+===================================================== */
+
+.avatar,
+.post-avatar,
+.comment-avatar,
+.user-result-avatar,
+.profile-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--c);
+    color: var(--c-ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    user-select: none;
+}
+
+.avatar { width: 40px; height: 40px; font-size: 18px; }
+.post-avatar { width: 40px; height: 40px; font-size: 18px; }
+.comment-avatar { width: 28px; height: 28px; font-size: 13px; }
+.user-result-avatar { width: 46px; height: 46px; font-size: 20px; }
+
+.profile-avatar {
+    width: 84px;
+    height: 84px;
+    font-size: 38px;
+    box-shadow: 0 0 0 4px var(--surface);
+}
+
+
+/* =====================================================
+   BOUTONS
+===================================================== */
+
+.primary-button {
+    width: 100%;
+    height: 50px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--brand) 80%, transparent);
+    transition: filter 0.15s, transform 0.1s;
+}
+
+.primary-button:hover { filter: brightness(1.07); }
+.primary-button:active { transform: scale(0.98); }
+
+.primary-button.is-friend {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    box-shadow: none;
+}
+
+.secondary-button {
+    width: 100%;
+    height: 46px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.secondary-button:hover { background: var(--canvas); }
+.secondary-button:active { transform: scale(0.98); }
+
+.primary-button:disabled,
+.secondary-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.text-button {
+    color: var(--brand);
+    font-weight: 700;
+}
+
+.text-button:hover { text-decoration: underline; }
+
+.back-button,
+.close-button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 20px;
+    line-height: 1;
+    transition: background 0.15s;
+}
+
+.back-button:hover,
+.close-button:hover { background: var(--canvas); }
+
+.close-button svg { width: 20px; height: 20px; }
+
+
+/* =====================================================
+   CONNEXION
+===================================================== */
+
+.auth-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+}
+
+.auth-wrap {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Trois bulles qui se répondent */
+
+.auth-hero {
+    position: relative;
+    height: 156px;
+    margin-bottom: 8px;
+}
+
+.hero-bubble {
+    position: absolute;
+    padding: 11px 20px;
+    border-radius: 22px 22px 22px 6px;
+    background: var(--c);
+    color: #171526;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    box-shadow: var(--shadow);
+}
+
+.hero-1 { left: 4%; top: 4px; transform: rotate(-4deg); }
+.hero-3 { left: 16%; top: 100px; transform: rotate(-2deg); }
+
+.hero-2 {
+    right: 4%;
+    top: 52px;
+    transform: rotate(3deg);
+    border-radius: 22px 22px 6px 22px;
+    background: var(--brand);
+    color: var(--brand-ink);
+}
+
+.auth-card {
+    padding: 26px 22px 22px;
+    border-radius: 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.auth-logo .logo-mark { width: 38px; height: 38px; }
+
+.auth-slogan {
+    margin: 2px 0 22px;
+    color: var(--muted);
+}
+
+.auth-card h1 {
+    margin-bottom: 14px;
+    font-size: 24px;
+}
+
+.auth-card input,
+.modal input[type="text"],
+.modal textarea {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 12px;
+    padding: 0 16px;
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    outline: none;
+    background: var(--canvas);
+    color: var(--ink);
+    font-size: 16px;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.auth-card input::placeholder,
+.modal input::placeholder,
+.modal textarea::placeholder,
+.search-box input::placeholder,
+.chat-composer input::placeholder,
+.comment-input::placeholder {
+    color: var(--muted);
+}
+
+.auth-card input:focus,
+.modal input[type="text"]:focus,
+.modal textarea:focus {
+    border-color: var(--brand);
+    background: var(--surface);
+}
+
+.auth-card .primary-button { margin-top: 4px; }
+
+.switch-text {
+    margin-top: 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.auth-message {
+    min-height: 20px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   BARRE DU HAUT
+===================================================== */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: calc(58px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) max(16px, calc((100vw - 640px) / 2 + 16px)) 0;
+    background: var(--canvas);
+    background: color-mix(in srgb, var(--canvas) 86%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.logo-mark { width: 30px; height: 30px; }
+.logo-mark path { fill: var(--brand); }
+.logo-mark circle { fill: var(--brand-ink); }
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.top-actions button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    transition: background 0.15s;
+}
+
+.top-actions button:hover { background: var(--surface); }
+.top-actions svg { width: 22px; height: 22px; }
+
+.icon-sun { display: none; }
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+
+
+/* =====================================================
+   MISE EN PAGE
+===================================================== */
+
+#main-app {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+
+.home,
+.page-section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 6px 16px 24px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0 18px;
+}
+
+.page-header h2 {
+    font-size: 25px;
+    min-width: 0;
+}
+
+
+/* =====================================================
+   ACCUEIL
+===================================================== */
+
+.welcome h1 {
+    margin: 10px 0 18px;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.quick-actions::-webkit-scrollbar { display: none; }
+
+.quick-actions button {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+
+.quick-actions button:hover { background: var(--brand-soft); }
+.quick-actions svg { width: 19px; height: 19px; color: var(--brand); }
+
+/* Zone « Quoi de neuf ? » */
+
+.create-post { margin-bottom: 22px; }
+
+.create-post-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 8px 8px 8px 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    text-align: left;
+    transition: transform 0.1s;
+}
+
+.create-post-button:active { transform: scale(0.99); }
+
+.composer-text {
+    flex: 1;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 16px;
+}
+
+.composer-cta {
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Fil */
+
+.posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.posts-container > .search-empty {
+    border: 1.5px dashed var(--line);
+    border-radius: 22px;
+}
+
+.empty-feed {
+    padding: 44px 24px;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 12px;
+    color: var(--brand);
+}
+
+.empty-feed h3 { font-size: 20px; margin-bottom: 4px; }
+.empty-feed p { color: var(--muted); }
+
+
+/* =====================================================
+   PUBLICATION : une bulle à la couleur de son auteur
+===================================================== */
+
+.post-card,
+.profile-card,
+.chat-messages,
+#chat-page {
+    --tint: color-mix(in srgb, var(--c) 16%, var(--surface));
+    --tint-line: color-mix(in srgb, var(--c) 42%, var(--surface));
+}
+
+.post-card {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+}
+
+.post-bubble {
+    min-width: 0;
+    padding: 12px 16px 6px;
+    border-radius: 6px 24px 24px 24px;
+    background: var(--surface);
+    background: var(--tint);
+    border: 1px solid var(--tint-line);
+}
+
+.post-author {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 8px;
+}
+
+.post-author strong {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.post-author span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.post-content {
+    margin: 6px 0 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0 -8px;
+}
+
+.post-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+}
+
+.post-actions button:hover {
+    background: color-mix(in srgb, var(--c) 22%, transparent);
+    color: var(--ink);
+}
+
+.post-actions svg { width: 19px; height: 19px; }
+
+.post-like-button.liked { color: var(--danger); }
+.post-like-button.liked svg { fill: var(--danger); stroke: var(--danger); }
+
+.post-like-button.pop svg { animation: pop 0.35s ease-out; }
+
+.post-delete-button { margin-left: auto; }
+.post-delete-button:hover { color: var(--danger) !important; }
+
+@keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+/* Commentaires */
+
+.comments-section:not(:empty) {
+    margin: 2px -4px 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--tint-line);
+}
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.comment-body {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: 4px 16px 16px 16px;
+    background: var(--surface);
+}
+
+.comment-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 6px;
+}
+
+.comment-top strong { font-size: 14px; }
+.comment-top span { color: var(--muted); font-size: 12px; }
+
+.comment-text {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.comment-delete {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    color: var(--muted);
+}
+
+.comment-delete svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.comment-delete:hover { color: var(--danger); }
+
+.comment-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.comment-input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 0 16px;
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    outline: none;
+    background: var(--surface);
+    font-size: 15px;
+}
+
+.comment-input:focus { border-color: var(--brand); }
+
+.comment-submit {
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.comment-submit:disabled { opacity: 0.6; }
+
+
+/* =====================================================
+   LISTES DE PERSONNES (recherche, amis, conversations)
+===================================================== */
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 50px;
+    margin-bottom: 14px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    transition: border-color 0.15s;
+}
+
+.search-box:focus-within { border-color: var(--brand); }
+.search-box svg { width: 20px; height: 20px; color: var(--muted); }
+
+.search-box input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: none;
+    background: none;
+    font-size: 16px;
+}
+
+.users-container {
+    overflow: hidden;
+    border-radius: 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+}
+
+.users-container:empty { display: none; }
+
+.modal .users-container {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    margin: 0 -6px;
+}
+
+.search-empty {
+    padding: 30px 22px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.user-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+}
+
+.user-result + .user-result { border-top: 1px solid var(--line); }
+
+.user-result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-result-info strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.user-result-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.user-result button {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--canvas);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: filter 0.15s;
+}
+
+.user-result button:hover { filter: brightness(0.96); }
+.user-result button:disabled { color: var(--muted); cursor: default; }
+
+.friend-button {
+    background: var(--brand-soft) !important;
+    color: var(--brand);
+}
+
+.friend-button.is-friend {
+    background: var(--canvas) !important;
+    color: var(--muted);
+}
+
+.write-button {
+    background: var(--brand) !important;
+    color: var(--brand-ink);
+}
+
+/* Conversations */
+
+.new-message-button { margin-bottom: 14px; }
+
+.conversation {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.conversation:hover { background: var(--canvas); }
+
+.conversation .user-result-info span { font-size: 15px; }
+
+.conversation.unread .user-result-info span {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.conversation-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.conversation-time {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.conversation-unread {
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 11px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   PROFIL : une grande bulle à la couleur de la personne
+===================================================== */
+
+.profile-card {
+    margin-bottom: 26px;
+    padding: 20px 20px 18px;
+    border-radius: 6px 30px 30px 30px;
+    background: var(--surface);
+    background: var(--tint);
+    border: 1px solid var(--tint-line);
+}
+
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 14px;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 28px;
+}
+
+.profile-stats strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.profile-stats span {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.profile-card h1 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+}
+
+.profile-username {
+    margin: 2px 0 10px;
+    color: var(--muted);
+}
+
+.profile-bio {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.profile-id {
+    margin-bottom: 18px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.profile-id strong { color: var(--ink); margin-left: 4px; }
+
+.profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-actions button {
+    flex: 1 1 200px;
+    width: auto;
+    white-space: nowrap;
+}
+
+.profile-posts h2 {
+    margin: 0 2px 14px;
+    font-size: 21px;
+}
+
+
+/* =====================================================
+   MESSAGERIE
+===================================================== */
+
+.chat-title { min-width: 0; }
+
+.chat-title h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 20px;
+}
+
+.chat-title span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: max(200px, calc(100vh - 400px));
+}
+
+.chat-empty {
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.chat-day {
+    align-self: center;
+    margin: 12px 0 6px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.chat-bubble {
+    max-width: 80%;
+    padding: 9px 14px 7px;
+    font-size: 16px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* Tes messages : indigo, coin carré en bas à droite */
+
+.chat-bubble.mine {
+    align-self: flex-end;
+    border-radius: 20px 20px 6px 20px;
+    background: var(--brand);
+    color: var(--brand-ink);
+}
+
+/* Les siens : sa couleur, coin carré en bas à gauche */
+
+.chat-bubble.theirs {
+    align-self: flex-start;
+    border-radius: 20px 20px 20px 6px;
+    background: var(--surface);
+    background: var(--tint);
+    border: 1px solid var(--tint-line);
+}
+
+.chat-text { white-space: pre-wrap; }
+
+.chat-time {
+    display: block;
+    margin-top: 2px;
+    text-align: right;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.chat-composer {
+    position: sticky;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 6px 6px 6px 18px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+}
+
+.chat-composer input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    border: 0;
+    outline: none;
+    background: none;
+    font-size: 16px;
+}
+
+.chat-send {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--brand-ink);
+    transition: filter 0.15s, transform 0.1s;
+}
+
+.chat-send:hover { filter: brightness(1.08); }
+.chat-send:active { transform: scale(0.94); }
+.chat-send svg { width: 20px; height: 20px; }
+
+
+/* =====================================================
+   STORIES (bientôt)
+===================================================== */
+
+.coming-soon {
+    padding: 56px 24px;
+    text-align: center;
+}
+
+.coming-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 14px;
+    color: var(--brand);
+}
+
+.coming-soon h2 { font-size: 22px; margin-bottom: 8px; }
+.coming-soon p { max-width: 320px; margin: 0 auto; color: var(--muted); }
+
+
+/* =====================================================
+   NAVIGATION DU BAS
+===================================================== */
+
+.bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    height: calc(66px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+}
+
+.bottom-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+
+.nav-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 30px;
+    border-radius: 999px;
+    transition: background 0.15s;
+}
+
+.nav-icon svg { width: 23px; height: 23px; }
+
+.bottom-nav button.active { color: var(--brand); }
+.bottom-nav button.active .nav-icon { background: var(--brand-soft); }
+
+/* Le bouton « Publier » est une bulle */
+
+.bottom-nav .nav-create {
+    justify-self: center;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-top: -24px;
+    border-radius: 20px 20px 20px 6px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    box-shadow: 0 12px 24px -10px color-mix(in srgb, var(--brand) 85%, transparent);
+    transition: transform 0.1s, filter 0.15s;
+}
+
+.bottom-nav .nav-create:hover { filter: brightness(1.08); }
+.bottom-nav .nav-create:active { transform: scale(0.94); }
+.nav-create svg { width: 26px; height: 26px; stroke-width: 2.2; }
+
+.bottom-nav .nav-badge {
+    position: absolute;
+    top: -5px;
+    right: 3px;
+    display: grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    border: 2px solid var(--surface);
+}
+
+
+/* =====================================================
+   FENÊTRES (feuille qui monte sur mobile)
+===================================================== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(14, 13, 22, 0.55);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    animation: fade 0.18s ease-out;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    border-radius: 28px 28px 0 0;
+    background: var(--surface);
+    animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#new-message-modal .modal-card { min-height: 55vh; }
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.modal-header h2 { font-size: 22px; }
+
+.modal label {
+    display: block;
+    margin: 0 2px 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.modal textarea {
+    height: auto;
+    min-height: 100px;
+    padding: 14px 16px;
+    resize: none;
+    line-height: 1.5;
+}
+
+#post-text { min-height: 150px; }
+
+.post-counter {
+    margin: -4px 2px 14px;
+    text-align: right;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+@keyframes sheet-up {
+    from { transform: translateY(48px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+@keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+/* =====================================================
+   MESSAGE TEMPORAIRE
+===================================================== */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    z-index: 200;
+    max-width: calc(100% - 32px);
+    padding: 12px 20px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--canvas);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: var(--shadow);
+    animation: fade 0.2s ease-out;
+}
+
+
+/* =====================================================
+   GRANDS ÉCRANS : la barre du bas devient une pastille flottante
+===================================================== */
+
+@media (min-width: 720px) {
+
+    .bottom-nav {
+        left: 50%;
+        right: auto;
+        bottom: 16px;
+        width: min(480px, calc(100% - 32px));
+        height: 66px;
+        padding-bottom: 0;
+        transform: translateX(-50%);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .chat-composer { bottom: 96px; }
+    .toast { bottom: 100px; }
+
+    .modal { align-items: center; }
+
+    .modal-card {
+        border-radius: 28px;
+        padding-bottom: 24px;
+    }
+
+    .welcome h1 { font-size: 42px; }
+}
+
+
+/* =====================================================
+   MOUVEMENT RÉDUIT
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+
+/* =====================================================
+   LOT 1 : humeur, bulles qui s'estompent, silence, brouillon
+===================================================== */
+
+/* Publication : transition douce d'opacité, et un petit
+   éclat quand elle reprend vie grâce à un like */
+
+.post-card {
+    transition: opacity 0.6s ease;
+}
+
+.post-revive {
+    animation: revive 0.6s ease-out;
+}
+
+@keyframes revive {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+}
+
+/* Statuts sur le profil : silence, brouillon en cours */
+
+.profile-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.status-drafting {
+    animation: draft-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes draft-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+#quiet-button.is-active {
+    background: var(--brand-soft);
+    color: var(--brand);
+    border-color: transparent;
+}
+
+/* Palette de couleur d'humeur, dans la modale de profil */
+
+.mood-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.mood-swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: transform 0.1s;
+}
+
+.mood-swatch:hover { transform: scale(1.08); }
+
+.mood-swatch.selected {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink);
+}
+
+.mood-swatch.mood-auto {
+    display: grid;
+    place-items: center;
+    background:
+        conic-gradient(
+            from 0deg,
+            #FF7A6B, #FFA53D, #FFD23F, #8FD14F,
+            #2EC4B6, #4DA8FF, #A78BFA, #FF7DB1, #FF7A6B
+        );
+}
+
+
+/* =====================================================
+   LOT 2 : météo d'amitié, écho, carnet à deux, salle vide
+===================================================== */
+
+.friendship-weather {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: -2px 0 10px;
+    color: var(--muted);
+    font-size: 13.5px;
+}
+
+/* Écho entre deux publications d'amis */
+
+.post-echo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: -4px 0 8px 50px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.post-echo svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Carnet à deux : entrées, alternées comme des post-it */
+
+.notebook-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 8px;
+}
+
+.notebook-entry {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 4px 18px 18px 18px;
+    background: var(--tint);
+    border: 1px solid var(--tint-line);
+}
+
+.notebook-entry.mine {
+    align-self: flex-end;
+    border-radius: 18px 4px 18px 18px;
+}
+
+.notebook-entry-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 15.5px;
+    line-height: 1.5;
+}
+
+.notebook-entry-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11.5px;
+}
+
+.notebook-composer {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+.notebook-empty {
+    padding: 44px 24px;
+    text-align: center;
+    color: var(--muted);
+}
+
+/* Salle vide : présence, va-et-vient */
+
+.room-info {
+    margin: -6px 0 16px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.room-info strong { color: var(--ink); }
+
+
+/* =====================================================
+   PERSONNALISATION DE L'INTERFACE
+===================================================== */
+
+.customize-desc {
+    margin: -8px 0 18px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.bg-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.bg-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 6px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    background: var(--canvas);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: border-color 0.15s, transform 0.1s;
+}
+
+.bg-option:hover {
+    transform: translateY(-2px);
+}
+
+.bg-option.selected {
+    border-color: var(--brand);
+    color: var(--ink);
+}
+
+.bg-preview {
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+}
+
+.bg-default { background: var(--canvas); }
+.bg-dusk { background: linear-gradient(145deg, #2e1065 0%, #4c1d95 40%, #5b21b6 100%); }
+.bg-mist { background: linear-gradient(145deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%); }
+.bg-sand { background: linear-gradient(145deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%); }
+.bg-night { background: linear-gradient(145deg, #020617 0%, #0f172a 50%, #1e1b4b 100%); }
+.bg-aurora { background: linear-gradient(145deg, #fce7f3 0%, #fbcfe8 40%, #f9a8d4 100%); }
+
+/* Application du fond choisi sur toute l'app */
+
+body[data-bg="dusk"] {
+    --canvas: #1e1b4b; --surface: #2e1065; --ink: #f5f3ff;
+    --muted: #c4b5fd; --line: #4c1d95;
+}
+
+body[data-bg="mist"] {
+    --canvas: #eef2ff; --surface: #ffffff; --ink: #1e1b4b;
+    --muted: #6366f1; --line: #c7d2fe;
+}
+
+body[data-bg="sand"] {
+    --canvas: #fffbeb; --surface: #ffffff; --ink: #451a03;
+    --muted: #b45309; --line: #fde68a;
+}
+
+body[data-bg="night"] {
+    --canvas: #020617; --surface: #0f172a; --ink: #f1f5f9;
+    --muted: #94a3b8; --line: #1e293b;
+}
+
+body[data-bg="aurora"] {
+    --canvas: #fdf2f8; --surface: #ffffff; --ink: #831843;
+    --muted: #db2777; --line: #fbcfe8;
+}
+
+
+/* =====================================================
+   SALLES DE GROUPE
+===================================================== */
+
+.group-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.group-card + .group-card { border-top: 1px solid var(--line); }
+.group-card:hover { background: var(--canvas); }
+
+.group-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.group-info { flex: 1; min-width: 0; }
+
+.group-info strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group-info span {
+    display: block;
+    color: var(--muted);
+    font-size: 13.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group-meta {
+    color: var(--muted);
+    font-size: 12px;
+    flex-shrink: 0;
+}

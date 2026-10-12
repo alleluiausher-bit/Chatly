@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#F3F4F8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0E0D16" media="(prefers-color-scheme: dark)">
+    <title>chatly — Chat differently</title>
+
+    <!-- Thème clair / sombre : appliqué avant l'affichage pour éviter un flash -->
+    <script>
+        try {
+            var saved = localStorage.getItem("chatly_theme");
+            var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.dataset.theme = saved || (dark ? "dark" : "light");
+        } catch (e) {
+            document.documentElement.dataset.theme = "light";
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- =========================
+         AUTHENTIFICATION
+    ========================== -->
+
+    <section id="auth-screen" class="auth-screen hidden">
+
+        <div class="auth-wrap">
+
+            <!-- Des bulles de conversation en guise d'illustration -->
+            <div class="auth-hero" aria-hidden="true">
+                <div class="hero-bubble hero-1" style="--c: #FFD23F">Salut !</div>
+                <div class="hero-bubble hero-2 hero-mine">Tu as vu ça ?</div>
+                <div class="hero-bubble hero-3" style="--c: #2EC4B6">Trop bien.</div>
+            </div>
+
+            <div class="auth-card">
+
+                <div class="auth-logo">
+                    <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+                        <path d="M8 3h16a6 6 0 0 1 6 6v9a6 6 0 0 1-6 6H14l-7 5v-5.2A6 6 0 0 1 2 18V9a6 6 0 0 1 6-6Z"></path>
+                        <circle cx="10" cy="13.5" r="1.9"></circle>
+                        <circle cx="16" cy="13.5" r="1.9"></circle>
+                        <circle cx="22" cy="13.5" r="1.9"></circle>
+                    </svg>
+                    <span>chatly</span>
+                </div>
+
+                <p class="auth-slogan">Chat differently.</p>
+
+                <!-- CONNEXION -->
+
+                <div id="login-form">
+
+                    <h1>Content de te revoir</h1>
+
+                    <input type="email" id="login-email" placeholder="Adresse e-mail" autocomplete="email">
+
+                    <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+
+                    <button id="login-button" class="primary-button">Se connecter</button>
+
+                    <p class="switch-text">
+                        Pas encore de compte ?
+                        <button id="show-register" class="text-button">Créer un compte</button>
+                    </p>
+
+                </div>
+
+                <!-- INSCRIPTION -->
+
+                <div id="register-form" class="hidden">
+
+                    <h1>Crée ton compte</h1>
+
+                    <input type="text" id="register-name" placeholder="Ton nom" autocomplete="name">
+
+                    <input type="text" id="register-username" placeholder="@username" autocomplete="username">
+
+                    <input type="email" id="register-email" placeholder="Adresse e-mail" autocomplete="email">
+
+                    <input type="password" id="register-password" placeholder="Mot de passe" autocomplete="new-password">
+
+                    <input type="password" id="register-password-confirm" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+
+                    <button id="register-button" class="primary-button">Créer mon compte</button>
+
+                    <p class="switch-text">
+                        Tu as déjà un compte ?
+                        <button id="show-login" class="text-button">Se connecter</button>
+                    </p>
+
+                </div>
+
+                <p id="auth-message" class="auth-message" role="alert"></p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         APPLICATION
+    ========================== -->
+
+    <section id="main-app" class="hidden">
+
+        <!-- BARRE DU HAUT -->
+
+        <header class="topbar">
+
+            <div class="logo">
+                <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M8 3h16a6 6 0 0 1 6 6v9a6 6 0 0 1-6 6H14l-7 5v-5.2A6 6 0 0 1 2 18V9a6 6 0 0 1 6-6Z"></path>
+                    <circle cx="10" cy="13.5" r="1.9"></circle>
+                    <circle cx="16" cy="13.5" r="1.9"></circle>
+                    <circle cx="22" cy="13.5" r="1.9"></circle>
+                </svg>
+                <span>chatly</span>
+            </div>
+
+            <div class="top-actions">
+
+                <button id="theme-button" aria-label="Changer de thème">
+                    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path><path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path><path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </button>
+
+                <button id="search-button" aria-label="Recherche">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="6.5"></circle>
+                        <path d="M16 16L21 21"></path>
+                    </svg>
+                </button>
+
+                <button id="notification-button" aria-label="Notifications">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                        <path d="M10 21h4"></path>
+                    </svg>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             ACCUEIL
+        ========================== -->
+
+        <main class="home" id="home-page">
+
+            <section class="welcome">
+                <h1 id="welcome-title">Salut</h1>
+            </section>
+
+            <!-- RACCOURCIS -->
+
+            <section class="quick-actions">
+
+                <button id="messages-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11.5a8 8 0 0 1-8 8H7l-4 3 1.5-4A8 8 0 1 1 20 11.5Z"></path>
+                    </svg>
+                    <span>Messages</span>
+                </button>
+
+                <button id="friends-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="9" cy="8" r="3"></circle>
+                        <circle cx="17" cy="9" r="2.5"></circle>
+                        <path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path>
+                        <path d="M14.5 15.5a5 5 0 0 1 6 3.5"></path>
+                    </svg>
+                    <span>Amis</span>
+                </button>
+
+                <button id="stories-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M12 8v4l3 2"></path>
+                    </svg>
+                    <span>Stories</span>
+                </button>
+
+                <button id="room-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="8" cy="9" r="3"></circle>
+                        <circle cx="16" cy="9" r="3"></circle>
+                        <path d="M3 20a5 5 0 0 1 10 0"></path>
+                        <path d="M11 20a5 5 0 0 1 10 0"></path>
+                    </svg>
+                    <span>Salle vide</span>
+                </button>
+
+                <button id="groups-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Salles</span>
+                </button>
+
+            </section>
+
+            <!-- ÉCRIRE -->
+
+            <section class="create-post">
+
+                <button id="create-post-button" class="create-post-button">
+                    <span id="composer-avatar" class="avatar">?</span>
+                    <span class="composer-text">Quoi de neuf ?</span>
+                    <span class="composer-cta">Écrire</span>
+                </button>
+
+            </section>
+
+            <!-- FIL -->
+
+            <section class="feed">
+
+                <div id="posts-container" class="posts-container">
+
+                    <div id="empty-feed" class="empty-feed">
+                        <svg class="empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 11.5a8 8 0 0 1-8 8H7l-4 3 1.5-4A8 8 0 1 1 20 11.5Z"></path>
+                        </svg>
+                        <h3>Le fil est vide</h3>
+                        <p>Sois le premier à écrire quelque chose.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE RECHERCHE
+        ========================== -->
+
+        <main id="search-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-search-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Recherche</h2>
+            </div>
+
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="6.5"></circle>
+                    <path d="M16 16L21 21"></path>
+                </svg>
+                <input type="text" id="user-search-input" placeholder="Nom, @username ou ID" autocomplete="off">
+            </div>
+
+            <div id="search-results" class="search-results users-container">
+                <div class="search-empty">Recherche des utilisateurs CHATLY.</div>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE PROFIL
+        ========================== -->
+
+        <main id="profile-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-profile-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Profil</h2>
+            </div>
+
+            <section id="profile-card" class="profile-card">
+
+                <div class="profile-top">
+
+                    <div id="profile-avatar" class="profile-avatar">U</div>
+
+                    <div class="profile-stats">
+                        <div>
+                            <strong id="profile-post-count">0</strong>
+                            <span>publications</span>
+                        </div>
+                        <div>
+                            <strong id="profile-friend-count">0</strong>
+                            <span>amis</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <h1 id="profile-name">Utilisateur</h1>
+
+                <p id="profile-username" class="profile-username">@username</p>
+
+                <div id="profile-status" class="profile-status hidden"></div>
+
+                <p id="friendship-weather" class="friendship-weather hidden"></p>
+
+                <p id="profile-bio" class="profile-bio">Bienvenue sur mon profil CHATLY.</p>
+
+                <p class="profile-id">
+                    <span>ID</span>
+                    <strong id="profile-id-value">CLY-000000</strong>
+                </p>
+
+                <div class="profile-actions">
+
+                    <button id="edit-profile-button" class="primary-button">Modifier mon profil</button>
+
+                    <button id="friend-toggle-button" class="primary-button hidden">💜 TWIST WITH</button>
+
+                    <button id="message-button" class="secondary-button hidden">Envoyer un message</button>
+
+                    <button id="notebook-button" class="secondary-button hidden">Ouvrir le carnet à deux</button>
+
+                    <button id="quiet-button" class="secondary-button">🤫 Activer le silence</button>
+
+                    <button id="logout-button" class="secondary-button">Se déconnecter</button>
+
+                    <button id="customize-button" class="secondary-button">🎨 Personnaliser l'apparence</button>
+
+                </div>
+
+            </section>
+
+            <section class="profile-posts">
+
+                <h2 id="profile-posts-title">Mes publications</h2>
+
+                <div id="profile-posts-container" class="posts-container"></div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE AMIS
+        ========================== -->
+
+        <main id="friends-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-friends-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Amis</h2>
+            </div>
+
+            <section class="twist-requests-section">
+                <h3>💜 Demandes TWIST WITH</h3>
+                <div id="twist-requests-container" class="users-container">
+                    <div class="search-empty">Aucune demande pour le moment.</div>
+                </div>
+            </section>
+
+            <section>
+                <h3>🤝 Mes amis</h3>
+                <div id="friends-container" class="users-container">
+                    <div class="search-empty">Aucun ami pour le moment.</div>
+                </div>
+            </section>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE MESSAGES
+        ========================== -->
+
+        <main id="messages-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-messages-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Messages</h2>
+            </div>
+
+            <button id="new-message-button" class="primary-button new-message-button">Nouveau message</button>
+
+            <div id="conversations-container" class="users-container"></div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE CONVERSATION
+        ========================== -->
+
+        <main id="chat-page" class="page-section hidden">
+
+            <div class="page-header">
+
+                <button id="close-chat-page" class="back-button" aria-label="Retour">←</button>
+
+                <div id="chat-avatar" class="user-result-avatar"></div>
+
+                <div class="chat-title">
+                    <h2 id="chat-name"></h2>
+                    <span id="chat-username"></span>
+                </div>
+
+            </div>
+
+            <div id="chat-messages" class="chat-messages"></div>
+
+            <div class="chat-composer">
+
+                <input type="text" id="chat-input" placeholder="Écrire un message" maxlength="1000" autocomplete="off">
+
+                <button id="chat-send" class="chat-send" aria-label="Envoyer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 3 10 14"></path>
+                        <path d="M21 3l-7 18-4-7-7-4 18-7Z"></path>
+                    </svg>
+                </button>
+
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE CARNET À DEUX
+        ========================== -->
+
+        <main id="notebook-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-notebook-page" class="back-button" aria-label="Retour">←</button>
+                <h2 id="notebook-title">Carnet à deux</h2>
+            </div>
+
+            <div id="notebook-entries" class="notebook-entries"></div>
+
+            <div class="chat-composer notebook-composer">
+                <input type="text" id="notebook-input" placeholder="Ajouter un souvenir, une idée..." maxlength="1000" autocomplete="off">
+                <button id="notebook-send" class="chat-send" aria-label="Ajouter">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+                </button>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE MES SALLES DE GROUPE
+        ========================== -->
+
+        <main id="groups-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-groups-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Mes salles</h2>
+            </div>
+
+            <button id="create-group-button" class="primary-button" style="margin-bottom: 18px;">
+                Créer une salle
+            </button>
+
+            <div id="groups-container" class="users-container">
+                <div class="search-empty">Tu n'as encore aucune salle de groupe.</div>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE SALLE DE GROUPE
+        ========================== -->
+
+        <main id="group-chat-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-group-chat" class="back-button" aria-label="Retour">←</button>
+                <div class="chat-title">
+                    <h2 id="group-chat-name">Salle</h2>
+                    <span id="group-chat-meta">0 membre</span>
+                </div>
+            </div>
+
+            <div id="group-messages" class="chat-messages"></div>
+
+            <div class="chat-composer">
+                <input type="text" id="group-input" placeholder="Écrire dans la salle..." maxlength="1000" autocomplete="off">
+                <button id="group-send" class="chat-send" aria-label="Envoyer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 3 10 14"></path>
+                        <path d="M21 3l-7 18-4-7-7-4 18-7Z"></path>
+                    </svg>
+                </button>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE SALLE VIDE
+        ========================== -->
+
+        <main id="room-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-room-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Salle vide</h2>
+            </div>
+
+            <p id="room-info" class="room-info"></p>
+
+            <div id="room-empty-state" class="coming-soon">
+                <svg class="coming-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="8" cy="9" r="3"></circle>
+                    <circle cx="16" cy="9" r="3"></circle>
+                    <path d="M3 20a5 5 0 0 1 10 0"></path>
+                    <path d="M11 20a5 5 0 0 1 10 0"></path>
+                </svg>
+                <h2>La salle est vide</h2>
+                <p>Elle ne prend vie que lorsque deux personnes au moins s'y trouvent en même temps. Rien n'est gardé après.</p>
+            </div>
+
+            <div id="room-messages" class="chat-messages hidden"></div>
+
+            <div id="room-composer" class="chat-composer hidden">
+                <input type="text" id="room-input" placeholder="Écrire dans la salle..." maxlength="500" autocomplete="off">
+                <button id="room-send" class="chat-send" aria-label="Envoyer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 3 10 14"></path>
+                        <path d="M21 3l-7 18-4-7-7-4 18-7Z"></path>
+                    </svg>
+                </button>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             PAGE STORIES
+        ========================== -->
+
+        <main id="stories-page" class="page-section hidden">
+
+            <div class="page-header">
+                <button id="close-stories-page" class="back-button" aria-label="Retour">←</button>
+                <h2>Stories</h2>
+            </div>
+
+            <div class="coming-soon">
+                <svg class="coming-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8"></circle>
+                    <path d="M12 8v4l3 2"></path>
+                </svg>
+                <h2>Bientôt disponible</h2>
+                <p>Les stories, des publications qui disparaissent après 24 h, arrivent dans une prochaine version.</p>
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+             NAVIGATION
+        ========================== -->
+
+        <nav class="bottom-nav">
+
+            <button id="nav-home" aria-label="Accueil">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 10.5 12 3l9 7.5"></path>
+                        <path d="M5.5 9.5V21h13V9.5"></path>
+                        <path d="M9.5 21v-6h5v6"></path>
+                    </svg>
+                </span>
+                <span class="nav-label">Accueil</span>
+            </button>
+
+            <button id="nav-search" aria-label="Recherche">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="6.5"></circle>
+                        <path d="M16 16L21 21"></path>
+                    </svg>
+                </span>
+                <span class="nav-label">Recherche</span>
+            </button>
+
+            <button id="nav-create-post" class="nav-create" aria-label="Publier">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+            </button>
+
+            <button id="nav-messages" aria-label="Messages">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11.5a8 8 0 0 1-8 8H7l-4 3 1.5-4A8 8 0 1 1 20 11.5Z"></path>
+                    </svg>
+                    <span id="messages-badge" class="nav-badge hidden">0</span>
+                </span>
+                <span class="nav-label">Messages</span>
+            </button>
+
+            <button id="nav-profile" aria-label="Profil">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="8" r="3.5"></circle>
+                        <path d="M5 21a7 7 0 0 1 14 0"></path>
+                    </svg>
+                </span>
+                <span class="nav-label">Profil</span>
+            </button>
+
+        </nav>
+
+    </section>
+
+
+    <!-- =========================
+         MODAL PUBLICATION
+    ========================== -->
+
+    <div id="post-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Nouvelle publication</h2>
+                <button id="close-post-modal" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <textarea id="post-text" placeholder="À quoi penses-tu ?" maxlength="1000"></textarea>
+
+            <div class="post-counter"><span id="post-counter">0</span> / 1000</div>
+
+            <button id="publish-button" class="primary-button">Publier</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         MODAL MODIFIER LE PROFIL
+    ========================== -->
+
+    <div id="edit-profile-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Modifier mon profil</h2>
+                <button id="close-edit-profile" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="edit-name">Nom</label>
+            <input type="text" id="edit-name" maxlength="40" autocomplete="name">
+
+            <label for="edit-bio">Bio</label>
+            <textarea id="edit-bio" maxlength="160"></textarea>
+
+            <label>Couleur d'humeur</label>
+            <div id="mood-picker" class="mood-picker"></div>
+
+            <div class="post-counter"><span id="edit-bio-counter">0</span> / 160</div>
+
+            <button id="save-profile-button" class="primary-button">Enregistrer</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         MODAL NOUVEAU MESSAGE
+    ========================== -->
+
+    <div id="new-message-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Nouveau message</h2>
+                <button id="close-new-message" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <input type="text" id="new-message-search" placeholder="Rechercher un utilisateur" autocomplete="off">
+
+            <div id="new-message-results" class="users-container"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         MODAL PERSONNALISATION
+    ========================== -->
+
+    <div id="customize-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Personnaliser l'apparence</h2>
+                <button id="close-customize" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <p class="customize-desc">Choisis un fond pour ton interface.</p>
+
+            <div class="bg-picker" id="bg-picker">
+                <button class="bg-option" data-bg="default" title="Défaut">
+                    <span class="bg-preview bg-default"></span>
+                    <span>Défaut</span>
+                </button>
+                <button class="bg-option" data-bg="dusk" title="Crépuscule">
+                    <span class="bg-preview bg-dusk"></span>
+                    <span>Crépuscule</span>
+                </button>
+                <button class="bg-option" data-bg="mist" title="Brume">
+                    <span class="bg-preview bg-mist"></span>
+                    <span>Brume</span>
+                </button>
+                <button class="bg-option" data-bg="sand" title="Sable">
+                    <span class="bg-preview bg-sand"></span>
+                    <span>Sable</span>
+                </button>
+                <button class="bg-option" data-bg="night" title="Nuit">
+                    <span class="bg-preview bg-night"></span>
+                    <span>Nuit</span>
+                </button>
+                <button class="bg-option" data-bg="aurora" title="Aurore">
+                    <span class="bg-preview bg-aurora"></span>
+                    <span>Aurore</span>
+                </button>
+            </div>
+
+            <button id="save-customize" class="primary-button">Enregistrer</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         MODAL CRÉER UNE SALLE
+    ========================== -->
+
+    <div id="create-group-modal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+                <h2>Nouvelle salle</h2>
+                <button id="close-create-group" class="close-button" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6 6 18"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="group-name">Nom de la salle</label>
+            <input type="text" id="group-name" placeholder="Ex : Les créatifs" maxlength="40" autocomplete="off">
+
+            <label for="group-description">Description (optionnel)</label>
+            <textarea id="group-description" placeholder="De quoi parle cette salle ?" maxlength="160"></textarea>
+
+            <div class="post-counter"><span id="group-desc-counter">0</span> / 160</div>
+
+            <button id="confirm-create-group" class="primary-button">Créer la salle</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- MESSAGE TEMPORAIRE -->
+
+    <div id="toast" class="toast hidden" role="status"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+
+</div>
+
+</body>
+</html>
