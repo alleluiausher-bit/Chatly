@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.alleluiausher_bit.twa",
+        "sha256_cert_fingerprints": ["D2:11:71:9C:62:8D:49:DA:A7:91:5E:44:51:66:53:65:AB:19:1F:03:E0:5C:20:3B:49:F6:FB:E3:01:E4:0E:87"]
+      }
+    }]
